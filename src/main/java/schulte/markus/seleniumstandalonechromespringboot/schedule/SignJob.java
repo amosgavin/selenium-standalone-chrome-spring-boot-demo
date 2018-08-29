@@ -2,6 +2,7 @@ package schulte.markus.seleniumstandalonechromespringboot.schedule;
 
 import io.github.bonigarcia.wdm.ChromeDriverManager;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.openqa.selenium.By;
@@ -12,9 +13,12 @@ import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import schulte.markus.seleniumstandalonechromespringboot.utils.ChineseCalendarUtils;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * @program: selenium-standalone-chrome-spring-boot-demo
@@ -29,12 +33,38 @@ public class SignJob {
   private static final String baseUrl = "http://oa.huizhaofang.com";
   private static final String loginId = "0498";
   private static final String password = "amos1983";
-  private static final long millis = 2000L;
+  private static final long millisMin = 0L;
+  private static final long millisMax = 20*60*1000L;
   private static final String loginInfoTip = "上次登录信息";
   private static final String buttonOKXpack = "//input[contains(@id,'_ButtonOK_')]";
+  private static final String buttonCancelXpack = "//input[contains(@id,'_ButtonCancel_')]";
 
-  @Scheduled(cron = "0 39 9 * * ?")
+  private long randomLong() {
+    long min = 1500;
+    long max = 4000;
+    return RandomUtils.nextLong(min, max);
+  }
+
+  private boolean isHoliday() {
+    DateTimeFormatter formate = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    LocalDateTime date = LocalDateTime.now();
+//    date = date.plusDays(3L);
+    try {
+      log.info(date.format(formate));
+      return ChineseCalendarUtils.isHoliday(date.format(formate));
+    } catch (Exception e) {
+      log.info("{}", e);
+    }
+    return false;
+  }
+
+  @Scheduled(cron = "0 29 9 * * ?")
   public void signIn() throws MalformedURLException, InterruptedException {
+    if (isHoliday()) {
+      log.info("今天假期！");
+      return;
+    }
+    Thread.sleep(RandomUtils.nextLong(millisMin, millisMax));
     ChromeDriverManager.getInstance().setup();
 
     WebDriver driver = new RemoteWebDriver(new URL(remoteSeleniumUrl), DesiredCapabilities.chrome());
@@ -56,12 +86,12 @@ public class SignJob {
 
       boolean isSuccess = true;
       do {
-        Thread.sleep(millis);
+        Thread.sleep(randomLong());
         final WebElement Message_undefined = driver.findElement(By.id("Message_undefined"));
         log.info(Message_undefined.getText());
         if (null!=Message_undefined && StringUtils.isNoneBlank(Message_undefined.getText())) {
           if (Message_undefined.getText().contains(loginInfoTip)) {
-            final WebElement buttonCancel = driver.findElement(By.xpath("//input[contains(@id,'_ButtonCancel_')]"));
+            final WebElement buttonCancel = driver.findElement(By.xpath(buttonCancelXpack));
             buttonCancel.click();
             log.info("上次登录信息click");
           } else
@@ -90,6 +120,11 @@ public class SignJob {
 
   @Scheduled(cron = "0 6 19 * * ?")
   public void signOut() throws MalformedURLException, InterruptedException {
+    if (isHoliday()) {
+      log.info("今天假期！");
+      return;
+    }
+    Thread.sleep(RandomUtils.nextLong(millisMin, millisMax));
     ChromeDriverManager.getInstance().setup();
 
     WebDriver driver = new RemoteWebDriver(new URL(remoteSeleniumUrl), DesiredCapabilities.chrome());
@@ -117,12 +152,12 @@ public class SignJob {
 
       boolean isSuccess = true;
       do {
-        Thread.sleep(millis);
+        Thread.sleep(randomLong());
         final WebElement Message_undefined = driver.findElement(By.id("Message_undefined"));
         log.info(Message_undefined.getText());
         if (null!=Message_undefined && StringUtils.isNoneBlank(Message_undefined.getText())) {
           if (Message_undefined.getText().contains(loginInfoTip)) {
-            final WebElement buttonCancel = driver.findElement(By.xpath("//input[contains(@id,'_ButtonCancel_')]"));
+            final WebElement buttonCancel = driver.findElement(By.xpath(buttonCancelXpack));
             buttonCancel.click();
             log.info("上次登录信息click");
           } else
