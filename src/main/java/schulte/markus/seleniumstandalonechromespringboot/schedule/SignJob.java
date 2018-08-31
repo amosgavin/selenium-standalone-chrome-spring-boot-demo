@@ -45,9 +45,9 @@ public class SignJob {
     return RandomUtils.nextLong(min, max);
   }
 
-  private boolean isHoliday() {
+  private boolean isHoliday(LocalDateTime date) {
     DateTimeFormatter formate = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    LocalDateTime date = LocalDateTime.now();
+//    LocalDateTime date = LocalDateTime.now();
 //    date = date.plusDays(3L);
     try {
       log.info(date.format(formate));
@@ -58,13 +58,25 @@ public class SignJob {
     return false;
   }
 
-  @Scheduled(cron = "0 29 9 * * ?")
+  @Scheduled(cron = "0 19 8 * * ?")
   public void signIn() throws MalformedURLException, InterruptedException {
-    if (isHoliday()) {
+    if (isHoliday(LocalDateTime.now())) {
       log.info("今天假期！");
       return;
+    } else if (isHoliday(LocalDateTime.now().plusDays(1))) {
+      log.info("明天是假期，提前1小时打卡");
+      Thread.sleep(randomLong());
+    } else if (isHoliday(LocalDateTime.now().plusDays(-1))) {
+      log.info("第一天上班，打卡");
+      Thread.sleep(60*60*1000);
+      Thread.sleep(20*60*1000);
+      Thread.sleep(randomLong());
+    } else {
+      log.info("正常上班，打卡");
+      Thread.sleep(60*60*1000);
+      Thread.sleep(RandomUtils.nextLong(millisMin, millisMax));
     }
-    Thread.sleep(RandomUtils.nextLong(millisMin, millisMax));
+
     ChromeDriverManager.getInstance().setup();
 
     WebDriver driver = new RemoteWebDriver(new URL(remoteSeleniumUrl), DesiredCapabilities.chrome());
@@ -118,13 +130,25 @@ public class SignJob {
     }
   }
 
-  @Scheduled(cron = "0 6 19 * * ?")
+  @Scheduled(cron = "0 1 18 * * ?")
   public void signOut() throws MalformedURLException, InterruptedException {
-    if (isHoliday()) {
+    if (isHoliday(LocalDateTime.now())) {
       log.info("今天假期！");
       return;
+    } else if (isHoliday(LocalDateTime.now().plusDays(1))) {
+      log.info("明天是假期，提前1小时打卡");
+      Thread.sleep(randomLong());
+    } else if (isHoliday(LocalDateTime.now().plusDays(-1))) {
+      log.info("第一天上班，打卡");
+      Thread.sleep(60*60*1000);
+      Thread.sleep(20*60*1000);
+      Thread.sleep(randomLong());
+    } else {
+      log.info("正常上班，打卡");
+      Thread.sleep(60*60*1000);
+      Thread.sleep(RandomUtils.nextLong(millisMin, millisMax));
     }
-    Thread.sleep(RandomUtils.nextLong(millisMin, millisMax));
+
     ChromeDriverManager.getInstance().setup();
 
     WebDriver driver = new RemoteWebDriver(new URL(remoteSeleniumUrl), DesiredCapabilities.chrome());
@@ -193,4 +217,5 @@ public class SignJob {
       }
     }
   }
+
 }
