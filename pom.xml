@@ -32,8 +32,21 @@
       <id>palantir-releases</id>
       <url>https://dl.bintray.com/palantir/releases</url>
     </repository>
+    <repository>
+      <id>bintray-jai-imageio</id>
+      <name>jai-imageio at bintray</name>
+      <url>https://dl.bintray.com/jai-imageio/maven/</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
   </repositories>
   <dependencies>
+    <dependency>
+      <groupId>net.sourceforge.tess4j</groupId>
+      <artifactId>tess4j</artifactId>
+      <version>4.2.1</version>
+    </dependency>
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
@@ -76,6 +89,12 @@
       <groupId>org.seleniumhq.selenium</groupId>
       <artifactId>selenium-remote-driver</artifactId>
       <version>RELEASE</version>
+    </dependency>
+    <!-- xxl-job-core -->
+    <dependency>
+      <groupId>com.xuxueli</groupId>
+      <artifactId>xxl-job-core</artifactId>
+      <version>1.9.1</version>
     </dependency>
   </dependencies>
   <build>

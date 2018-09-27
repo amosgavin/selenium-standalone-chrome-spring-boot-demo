@@ -6,6 +6,8 @@ import com.palantir.docker.compose.connection.waiting.HealthChecks;
 import io.github.bonigarcia.wdm.ChromeDriverManager;
 import java.net.MalformedURLException;
 import java.net.URL;
+
+import io.github.bonigarcia.wdm.DriverManagerType;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
@@ -59,7 +61,7 @@ public class HelloControllerIT {
 
   @BeforeClass
   public static void initWebDriver() throws MalformedURLException {
-    ChromeDriverManager.getInstance().setup();
+    ChromeDriverManager.getInstance(DriverManagerType.CHROME).setup();
 
     final DockerPort seleniumStandaloneDockerPort = DOCKER_COMPOSE_RULE.containers()
       .container(SELENIUM_STANDALONE_CHROME_SERVICE_NAME).port(SELENIUM_HUB_PORT);

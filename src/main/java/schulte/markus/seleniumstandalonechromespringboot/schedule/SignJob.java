@@ -1,6 +1,7 @@
 package schulte.markus.seleniumstandalonechromespringboot.schedule;
 
 import io.github.bonigarcia.wdm.ChromeDriverManager;
+import io.github.bonigarcia.wdm.DriverManagerType;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -29,19 +30,19 @@ import java.time.format.DateTimeFormatter;
 @Slf4j
 @Component
 public class SignJob {
-  private static final String remoteSeleniumUrl = "http://10.10.11.180:32793/wd/hub";
+  private static final String remoteSeleniumUrl = "http://10.10.11.180:32769/wd/hub";
   private static final String baseUrl = "http://oa.huizhaofang.com";
   private static final String loginId = "0498";
-  private static final String password = "amos1983";
+  private static final String password = "";
   private static final long millisMin = 0L;
-  private static final long millisMax = 20*60*1000L;
+  private static final long millisMax = 15*60*1000L;
   private static final String loginInfoTip = "上次登录信息";
   private static final String buttonOKXpack = "//input[contains(@id,'_ButtonOK_')]";
   private static final String buttonCancelXpack = "//input[contains(@id,'_ButtonCancel_')]";
 
   private long randomLong() {
-    long min = 1500;
-    long max = 4000;
+    long min = 1000;
+    long max = 2000;
     return RandomUtils.nextLong(min, max);
   }
 
@@ -58,14 +59,14 @@ public class SignJob {
     return false;
   }
 
-  @Scheduled(cron = "0 19 8 * * ?")
+//  @Scheduled(cron = "0 19 8 * * ?")
   public void signIn() throws MalformedURLException, InterruptedException {
     if (isHoliday(LocalDateTime.now())) {
       log.info("今天假期！");
       return;
     } else if (isHoliday(LocalDateTime.now().plusDays(1))) {
       log.info("明天是假期，提前1小时打卡");
-      Thread.sleep(randomLong());
+//      Thread.sleep(randomLong());
     } else if (isHoliday(LocalDateTime.now().plusDays(-1))) {
       log.info("第一天上班，打卡");
       Thread.sleep(60*60*1000);
@@ -73,11 +74,11 @@ public class SignJob {
       Thread.sleep(randomLong());
     } else {
       log.info("正常上班，打卡");
-      Thread.sleep(60*60*1000);
+      Thread.sleep(55*60*1000);
       Thread.sleep(RandomUtils.nextLong(millisMin, millisMax));
     }
 
-    ChromeDriverManager.getInstance().setup();
+    ChromeDriverManager.getInstance(DriverManagerType.CHROME).setup();
 
     WebDriver driver = new RemoteWebDriver(new URL(remoteSeleniumUrl), DesiredCapabilities.chrome());
     try {
@@ -93,8 +94,10 @@ public class SignJob {
       final WebElement login = driver.findElement(By.id("login"));
       login.click();
       log.info("登录成功");
+      Thread.sleep(randomLong());
       final WebElement leftBlockHrmDep = driver.findElement(By.id("leftBlockHrmDep"));
-      Assert.assertEquals("平台技术部", leftBlockHrmDep.getText());
+      log.info(leftBlockHrmDep.getText());
+//      Assert.assertTrue("平台技术部".equals(leftBlockHrmDep.getText()) || "支付产品".equals(leftBlockHrmDep.getText()) || "支付技术".equals(leftBlockHrmDep.getText()));
 
       boolean isSuccess = true;
       do {
@@ -130,14 +133,14 @@ public class SignJob {
     }
   }
 
-  @Scheduled(cron = "0 1 18 * * ?")
+//  @Scheduled(cron = "0 1 18 * * ?")
   public void signOut() throws MalformedURLException, InterruptedException {
     if (isHoliday(LocalDateTime.now())) {
       log.info("今天假期！");
       return;
     } else if (isHoliday(LocalDateTime.now().plusDays(1))) {
       log.info("明天是假期，提前1小时打卡");
-      Thread.sleep(randomLong());
+//      Thread.sleep(randomLong());
     } else if (isHoliday(LocalDateTime.now().plusDays(-1))) {
       log.info("第一天上班，打卡");
       Thread.sleep(60*60*1000);
@@ -149,7 +152,7 @@ public class SignJob {
       Thread.sleep(RandomUtils.nextLong(millisMin, millisMax));
     }
 
-    ChromeDriverManager.getInstance().setup();
+    ChromeDriverManager.getInstance(DriverManagerType.CHROME).setup();
 
     WebDriver driver = new RemoteWebDriver(new URL(remoteSeleniumUrl), DesiredCapabilities.chrome());
     try {
@@ -165,8 +168,10 @@ public class SignJob {
       final WebElement login = driver.findElement(By.id("login"));
       login.click();
       log.info("登录成功");
+      Thread.sleep(randomLong());
       final WebElement leftBlockHrmDep = driver.findElement(By.id("leftBlockHrmDep"));
-      Assert.assertEquals("平台技术部", leftBlockHrmDep.getText());
+      log.info(leftBlockHrmDep.getText());
+//      Assert.assertTrue("平台技术部".equals(leftBlockHrmDep.getText()) || "支付产品".equals(leftBlockHrmDep.getText()) || "支付技术".equals(leftBlockHrmDep.getText()));
 
       final WebElement tdSignInfo = driver.findElement(By.xpath("//div[@id='sign_dispan']"));
       log.info(tdSignInfo.getText());
